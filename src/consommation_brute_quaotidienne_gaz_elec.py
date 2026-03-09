@@ -1,9 +1,9 @@
 import requests
-import duckdb
-import json
+from bdd.db import stocker_dans_bdd
+from utils.stocker_fichier import stocker_fichier
 
 url_api = 'https://tabular-api.data.gouv.fr/api/resources/cfc27ff9-1871-4ee8-be64-b9a290c06935/data/?Date__exact="2024-10-31"'
-fichier_cible = "consommation_brute_quaotidienne_gaz_elec.json"
+fichier_cible = "../data/consommation_brute_quaotidienne_gaz_elec.json"
 sql_creation = """
 CREATE TABLE IF NOT EXISTS consommation_brute_quotidienne_gaz_elec_raw (
     "__id" INT,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS consommation_brute_quotidienne_gaz_elec_raw (
     
 )
 """
-fichier_base_de_donnees = "bdd_cours_python_avance"
+fichier_base_de_donnees = "../data/bdd_cours_python_avance"
 
 
 def telecharger_donnes_conso_gaz_elec(url):
@@ -38,25 +38,8 @@ def telecharger_donnes_conso_gaz_elec(url):
     return toutes_les_data
 
 
-def stocker_fichier(donnes, nom_fichier):
-    print("Stockage dans le fichier")
-    with open(nom_fichier, "w") as f:
-        for line in donnes:
-            json.dump(line, f)
-
-with duckdb.connect(fichier_base_de_donnees) as con:
-    con.sql(f'DESCRIBE SELECT * FROM read_json_auto("{fichier_cible}")').show()
-
-
-def stocker_dans_bdd(sql, fichier, bdd):
-    print("Chargement dans la BDD")
-    connection = duckdb.connect(bdd)
-   ## connection.sql("DROP TABLE IF EXISTS consommation_brute_quotidienne_gaz_elec_raw") ajouter nouvelle colonne
-    connection.sql(sql)
-    connection.sql('INSERT INTO consommation_brute_quotidienne_gaz_elec_raw '
-                   f'SELECT * FROM read_json_auto("{fichier}")')
-
 
 resultat = telecharger_donnes_conso_gaz_elec(url_api)
 stocker_fichier(resultat, fichier_cible)
-stocker_dans_bdd(sql_creation, fichier_cible, fichier_base_de_donnees)
+nom_table = "consommation_brute_quotidienne_gaz_elec_raw"
+stocker_dans_bdd(sql_creation, fichier_cible, fichier_base_de_donnees,nom_table)
