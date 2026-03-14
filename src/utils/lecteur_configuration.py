@@ -1,5 +1,6 @@
 import json
-from src.configuration import EconomieGouvConfiguration, DataGouvConfiguration
+
+from configuration import EconomieGouvConfiguration, DataGouvConfiguration
 
 
 def lire_configuration():
@@ -10,9 +11,9 @@ def lire_configuration():
     for config in configuration:
         config["sql_creation"] = retrouver_sql(config["fichier_sql"])
         if config["type_api"] == "economie_gouv":
-            out.append(EconomieGouvConfiguration(config))
+            out.append(EconomieGouvConfiguration(**config))
         elif config["type_api"] == "data_gouv":
-            out.append(DataGouvConfiguration(config))
+            out.append(DataGouvConfiguration(**config))
         else:
             raise ValueError(f"La clé type_api = {config['type_api']} n'est pas connue")
 
