@@ -1,12 +1,11 @@
 from time import sleep
 from urllib.error import HTTPError
-
 from pydantic.dataclasses import dataclass
 
 import requests
 
 
-def requests_get(url, max_retries=3):
+def requests_get(url: str, max_retries: int = 3) -> requests.Response:
     error_count = 0
     http_error_count = 0
 
@@ -43,14 +42,14 @@ class EconomieGouvConfiguration:
     nom_table: str
 
     @property
-    def url(self):
+    def url(self) -> str:
         if self.select:
             select_param = "%2C".join(self.select)
             return f"https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/{self.dataset}/records?select={select_param}&limit={{step}}&offset={{offset}}"
         else:
             return f"https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/{self.dataset}/records?limit={{step}}&offset={{offset}}"
 
-    def telecharger(self):
+    def telecharger(self) -> list[dict]:
         step = 100
         offset = 0
         toutes_les_data = []
@@ -79,10 +78,10 @@ class DataGouvConfiguration:
     nom_table: str
 
     @property
-    def url(self):
+    def url(self) -> str:
         return f"https://tabular-api.data.gouv.fr/api/resources/{self.dataset}/data/?Date__exact='2024-10-31'"
 
-    def telecharger(self):
+    def telecharger(self) -> list[dict]:
         toutes_les_data = []
         url = self.url
         print("Télécharger les données")
